@@ -1,5 +1,7 @@
+
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 typedef struct SodokuCell
 {
 	int8_t currentNumber;//-1 for no possible value,0 for not select
@@ -8,7 +10,7 @@ typedef struct SodokuCell
 }SodokuCell;
 
 SodokuCell table[9][9];//x y
-
+char* sodokuFileName=NULL;
 typedef struct SodokuSelection
 {
 	int8_t cellCoordinate[2];
@@ -64,7 +66,7 @@ void findSolution()
 		//check the solution
 		if(validate())
 		{
-			printf("is validate\n");
+//			printf("is validate\n");
 			//outputSolution();
 			if(isFull())
 			{
@@ -80,10 +82,10 @@ void findSolution()
 		}
 		else
 		{
-			outputSolution();
+//			outputSolution();
 			if(endOfSelection)
 				popSelection();
-			printf("not validate\n");
+//			printf("not validate\n");
 			shouldFindNewSelection=0;	
 		}
 	}
@@ -209,7 +211,7 @@ void pushSelection(SodokuSelection* selection)
 {
 	//change the stack
 	SodokuSelection* currentSelection=stack+(++stackTop);
-	printf("current index %d with value %d\n",stackTop,selection->selectionValue);
+//	printf("current index %d with value %d\n",stackTop,selection->selectionValue);
 	currentSelection->selectionValue=selection->selectionValue;
 	currentSelection->atPossibleIndex=selection->atPossibleIndex;
 	currentSelection->cellCoordinate[0]=selection->cellCoordinate[0];
@@ -226,47 +228,51 @@ void initSodokuTable()
 			table[i][j].currentNumber=-1;
 		}
 	
-	table[0][0].currentNumber=2;
-	table[2][0].currentNumber=6;
-	table[5][0].currentNumber=1;
-	table[7][0].currentNumber=8;
-
-	table[0][1].currentNumber=1;
-	table[1][1].currentNumber=7;
-	table[5][1].currentNumber=9;
-	table[7][1].currentNumber=6;
-
-	table[3][2].currentNumber=4;
-	table[4][2].currentNumber=6;
-	table[5][2].currentNumber=7;
+	char readBuffer[10];
+	FILE* inFile = fopen(sodokuFileName,"r");
 	
-	table[0][3].currentNumber=6;
-	table[1][3].currentNumber=1;
-	table[4][3].currentNumber=4;
-	table[6][3].currentNumber=8;
-
-	table[2][4].currentNumber=2;
-	table[6][4].currentNumber=3;
+	for(int y=0;y<9;y++)
+		for(int x=0;x<9;x++)
+		{
+			fscanf(inFile,"%s",readBuffer);
+			if(readBuffer[0]=='x')
+				continue;
+			table[x][y].currentNumber=readBuffer[0]-'0';
+		    printf("%d\n",table[x][y].currentNumber);
+		}
 	
-	table[2][5].currentNumber=5;
-	table[4][5].currentNumber=7;
-	table[7][5].currentNumber=9;
-	table[8][5].currentNumber=6;
-
-
-	table[3][6].currentNumber=2;
-	table[4][6].currentNumber=1;
-	table[5][6].currentNumber=5;
-
-	table[1][7].currentNumber=3;
-	table[3][7].currentNumber=6;
-	table[7][7].currentNumber=2;
-	table[8][7].currentNumber=8;
-
-	table[1][8].currentNumber=2;
-	table[3][8].currentNumber=7;
-	table[6][8].currentNumber=6;
-	table[8][8].currentNumber=5;
+	fclose(inFile);
+//	table[0][0].currentNumber=8;
+//
+//
+//	table[2][1].currentNumber=3;
+//	table[3][1].currentNumber=6;
+//
+//	table[1][2].currentNumber=7;
+//	table[4][2].currentNumber=9;
+//	table[6][2].currentNumber=2;
+//	
+//	table[1][3].currentNumber=5;
+//	table[5][3].currentNumber=7;
+//
+//	table[4][4].currentNumber=4;
+//	table[5][4].currentNumber=5;
+//	table[6][4].currentNumber=7;
+//	
+//	table[3][5].currentNumber=1;
+//	table[7][5].currentNumber=3;
+//
+//
+//	table[2][6].currentNumber=1;
+//	table[7][6].currentNumber=6;
+//	table[8][6].currentNumber=8;
+//
+//	table[2][7].currentNumber=8;
+//	table[3][7].currentNumber=5;
+//	table[7][7].currentNumber=1;
+//
+//	table[1][8].currentNumber=9;
+//	table[6][8].currentNumber=4;
 }
 int findAllPossibles(SodokuSelection* newSelection)
 {
@@ -317,17 +323,17 @@ int findAllPossibles(SodokuSelection* newSelection)
 					}
 
 				int currentPossibleCount=0;
-				printf("--------------");
+//				printf("--------------");
 				for(int i=0;i<9;i++)
 				{
 					if(possibleValue[i]==0)
 						continue;
 					cell->possibleValues[currentPossibleCount]=i+1;	
 					currentPossibleCount++;
-					printf("%d ",i+1);
+//					printf("%d ",i+1);
 				}
 				cell->possibleValuesCount=currentPossibleCount;
-				printf("\n---------------\n");
+//				printf("\n---------------\n");
 				if(currentPossibleCount==0)
 				{
 					return 0;
@@ -341,7 +347,7 @@ int findAllPossibles(SodokuSelection* newSelection)
 					currentSmallestCount=possibleCount;
 					selectedCoordinate[0]=x;
 					selectedCoordinate[1]=y;
-					printf("x:%d y:%d\n",x,y);
+//					printf("x:%d y:%d\n",x,y);
 				}
 			}	
 		}
@@ -355,6 +361,11 @@ int findAllPossibles(SodokuSelection* newSelection)
 }
 int main(int argc,char*argv[])
 {
+	if(argc<2){
+		printf("need input file");
+		return 1;
+	}
+	sodokuFileName=argv[1];
 	printf("welcome to sokoku reslover\n");
 
 	findSolution();
